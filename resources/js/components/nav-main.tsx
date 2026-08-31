@@ -21,9 +21,20 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                         <SidebarMenuButton
                             asChild
                             isActive={isCurrentUrl(item.href)}
+                            disabled={item.disabled}
                             tooltip={{ children: item.title }}
                         >
-                            <Link href={item.href} prefetch>
+                            <Link
+                                href={item.href}
+                                prefetch={!item.disabled}
+                                tabIndex={item.disabled ? -1 : undefined}
+                                aria-disabled={item.disabled}
+                                onClick={(event) => {
+                                    if (item.disabled) {
+                                        event.preventDefault();
+                                    }
+                                }}
+                            >
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
                             </Link>

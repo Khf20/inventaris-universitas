@@ -1,0 +1,5 @@
+<form method="POST" action="{{ $action }}" class="space-y-5">@csrf @if ($method !== 'POST') @method($method) @endif
+    <div><label class="block text-sm font-medium text-slate-700" for="nama">Nama kategori</label><input class="mt-1 block w-full rounded-lg border-slate-300" id="nama" name="nama" value="{{ old('nama', $kategori?->nama) }}" required>@error('nama')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror</div>
+    <div><label class="block text-sm font-medium text-slate-700" for="deskripsi">Deskripsi</label><textarea class="mt-1 block w-full rounded-lg border-slate-300" id="deskripsi" name="deskripsi" rows="4">{{ old('deskripsi', $kategori?->deskripsi) }}</textarea>@error('deskripsi')<p class="mt-1 text-sm text-rose-600">{{ $message }}</p>@enderror</div>
+    <div class="flex justify-end gap-3"><a href="{{ route('kategori.index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">Batal</a><button class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Simpan</button></div>
+</form>

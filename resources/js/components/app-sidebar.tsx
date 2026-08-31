@@ -1,5 +1,13 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BarChart3,
+    BookOpen,
+    Boxes,
+    FolderGit2,
+    LayoutGrid,
+    Package,
+    Receipt,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -22,6 +30,26 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Kategori',
+        href: '/kategori',
+        icon: Boxes,
+    },
+    {
+        title: 'Barang',
+        href: '/barang',
+        icon: Package,
+    },
+    {
+        title: 'Transaksi',
+        href: '/transaksi',
+        icon: Receipt,
+    },
+    {
+        title: 'Laporan',
+        href: '/laporan',
+        icon: BarChart3,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -39,7 +67,11 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar
+            collapsible="icon"
+            variant="inset"
+            className="border-sidebar-border/70"
+        >
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
