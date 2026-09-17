@@ -9,11 +9,14 @@ class Kategori extends Model
 {
     protected $table = 'kategoris';
 
+<<<<<<< HEAD
     protected $fillable = [
         'nama',
         'deskripsi',
     ];
 
+=======
+>>>>>>> 5234dcea2670bad4aaf5903da628c34b5b208e9d
     public function barangs(): HasMany
     {
         return $this->hasMany(Barang::class);
