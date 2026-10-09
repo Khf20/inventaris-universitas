@@ -29,7 +29,7 @@ class BarangRequest extends FormRequest
             'jumlah' => ['required', 'integer', 'min:0'],
             'kondisi' => ['required', Rule::in(['baik', 'rusak', 'hilang'])],
             'deskripsi' => ['nullable', 'string'],
-            'gambar' => ['nullable', 'string', 'max:255'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
     }
 }

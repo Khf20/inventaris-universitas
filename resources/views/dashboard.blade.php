@@ -20,7 +20,7 @@
                     ['label' => 'Barang Dipinjam', 'value' => $barangDipinjam, 'icon' => '↗', 'class' => 'from-[#f093fb] to-[#d86fe4]'],
                     ['label' => 'Total Stok', 'value' => $totalStok, 'icon' => '✓', 'class' => 'from-[#4facfe] to-[#2588dc]'],
                 ] as $stat)
-                    <div class="overflow-hidden rounded-2xl bg-gradient-to-br {{ $stat['class'] }} p-5 text-white shadow-lg shadow-slate-200">
+                    <x-card class="overflow-hidden rounded-2xl bg-gradient-to-br {{ $stat['class'] }} p-5 text-white shadow-lg shadow-slate-200" body-class="p-0">
                         <div class="flex items-start justify-between gap-4">
                             <div>
                                 <p class="text-sm font-medium text-white/80">{{ $stat['label'] }}</p>
@@ -28,51 +28,40 @@
                             </div>
                             <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-xl" aria-hidden="true">{{ $stat['icon'] }}</span>
                         </div>
-                    </div>
+                    </x-card>
                 @endforeach
             </div>
 
             <div class="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
-                <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <div class="flex items-center justify-between gap-4 border-b border-slate-200 px-6 py-5">
-                        <div>
-                            <h2 class="text-lg font-semibold text-slate-900">Transaksi terbaru</h2>
-                            <p class="mt-1 text-sm text-slate-500">Lima aktivitas peminjaman terakhir.</p>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                                <tr>
-                                    <th class="px-6 py-3 font-semibold">Barang</th>
-                                    <th class="px-6 py-3 font-semibold">Peminjam</th>
-                                    <th class="px-6 py-3 font-semibold">Jumlah</th>
-                                    <th class="px-6 py-3 font-semibold">Tanggal</th>
-                                    <th class="px-6 py-3 font-semibold">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @forelse ($transaksiTerbaru as $transaksi)
-                                    <tr class="text-slate-700">
-                                        <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ $transaksi->barang->nama }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4">{{ $transaksi->user->name }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4">{{ number_format($transaksi->jumlah) }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4">{{ $transaksi->tgl_pinjam?->format('d/m/Y') ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-6 py-4">
-                                            <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $transaksi->status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
-                                                {{ ucfirst($transaksi->status) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-10 text-center text-slate-500">Belum ada transaksi.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                <x-data-table
+                    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                    :headers="[
+                        ['label' => 'Barang', 'class' => 'bg-slate-50 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500'],
+                        ['label' => 'Peminjam', 'class' => 'bg-slate-50 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500'],
+                        ['label' => 'Jumlah', 'class' => 'bg-slate-50 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500'],
+                        ['label' => 'Tanggal', 'class' => 'bg-slate-50 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500'],
+                        ['label' => 'Status', 'class' => 'bg-slate-50 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500'],
+                    ]"
+                    table-class="min-w-full text-left text-sm"
+                >
+                    @forelse ($transaksiTerbaru as $transaksi)
+                        <tr class="text-slate-700">
+                            <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900">{{ $transaksi->barang->nama }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $transaksi->user->name }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ number_format($transaksi->jumlah) }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">{{ $transaksi->tgl_pinjam?->format('d/m/Y') ?? '-' }}</td>
+                            <td class="whitespace-nowrap px-6 py-4">
+                                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $transaksi->status === 'dipinjam' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
+                                    {{ ucfirst($transaksi->status) }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-10 text-center text-slate-500">Belum ada transaksi.</td>
+                        </tr>
+                    @endforelse
+                </x-data-table>
 
                 <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="border-b border-slate-200 px-6 py-5">

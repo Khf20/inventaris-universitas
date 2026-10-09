@@ -27,7 +27,7 @@ class BarangController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('barang.index', [
+        return view('pages.barang.index', [
             'barangs' => $barangs,
             'kategoris' => Kategori::orderBy('nama')->get(),
             'search' => $request->input('search', ''),
@@ -40,7 +40,7 @@ class BarangController extends Controller
      */
     public function create(): View
     {
-        return view('barang.create', ['kategoris' => Kategori::orderBy('nama')->get()]);
+        return view('pages.barang.create', ['kategoris' => Kategori::all()]);
     }
 
     /**
@@ -48,7 +48,17 @@ class BarangController extends Controller
      */
     public function store(BarangRequest $request): RedirectResponse
     {
-        Barang::create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = time().'_'.$file->getClientOriginalName();
+
+            $file->storeAs('barang', $filename, 'public');
+            $data['gambar'] = 'storage/barang/'.$filename;
+        }
+
+        Barang::create($data);
 
         return to_route('barang.index')->with('status', 'Barang berhasil ditambahkan.');
     }
@@ -66,7 +76,7 @@ class BarangController extends Controller
      */
     public function edit(Barang $barang): View
     {
-        return view('barang.edit', [
+        return view('pages.barang.edit', [
             'barang' => $barang,
             'kategoris' => Kategori::orderBy('nama')->get(),
         ]);
@@ -77,7 +87,17 @@ class BarangController extends Controller
      */
     public function update(BarangRequest $request, Barang $barang): RedirectResponse
     {
-        $barang->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            $filename = time().'_'.$file->getClientOriginalName();
+
+            $file->storeAs('barang', $filename, 'public');
+            $data['gambar'] = 'storage/barang/'.$filename;
+        }
+
+        $barang->update($data);
 
         return to_route('barang.index')->with('status', 'Barang berhasil diperbarui.');
     }
@@ -87,6 +107,10 @@ class BarangController extends Controller
      */
     public function destroy(Barang $barang): RedirectResponse
     {
+        if ($barang->transaksis()->where('status', 'dipinjam')->exists()) {
+            return to_route('barang.index')->with('error', 'Barang tidak dapat dihapus karena masih dipinjam.');
+        }
+
         $barang->delete();
 
         return to_route('barang.index')->with('status', 'Barang berhasil dihapus.');

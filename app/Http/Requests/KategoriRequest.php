@@ -27,4 +27,19 @@ class KategoriRequest extends FormRequest
             'deskripsi' => ['nullable', 'string'],
         ];
     }
+
+    /**
+     * Get the custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'nama.required' => 'Nama kategori wajib diisi.',
+            'nama.string' => 'Nama kategori harus berupa teks.',
+            'nama.max' => 'Nama kategori maksimal 100 karakter.',
+            'deskripsi.string' => 'Deskripsi harus berupa teks.',
+        ];
+    }
 }

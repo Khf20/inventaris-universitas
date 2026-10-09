@@ -29,6 +29,61 @@ test('staff can create a category and an item', function () {
     ]);
 });
 
+test('category validation returns custom messages', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->from(route('kategori.create'))
+        ->post(route('kategori.store'), ['nama' => ''])
+        ->assertSessionHasErrors([
+            'nama' => 'Nama kategori wajib diisi.',
+        ]);
+});
+
+test('category with items cannot be deleted', function () {
+    $user = User::factory()->create();
+    $kategori = Kategori::create(['nama' => 'Elektronik']);
+    Barang::create([
+        'kategori_id' => $kategori->id,
+        'nama' => 'Laptop',
+        'jumlah' => 5,
+        'kondisi' => 'baik',
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('kategori.destroy', $kategori))
+        ->assertRedirect(route('kategori.index'))
+        ->assertSessionHas('error', 'Kategori tidak dapat dihapus karena masih memiliki barang.');
+
+    $this->assertDatabaseHas('kategoris', ['id' => $kategori->id]);
+    $this->assertDatabaseHas('barangs', ['kategori_id' => $kategori->id]);
+});
+
+test('item with an active loan cannot be deleted', function () {
+    $user = User::factory()->create();
+    $kategori = Kategori::create(['nama' => 'Elektronik']);
+    $barang = Barang::create([
+        'kategori_id' => $kategori->id,
+        'nama' => 'Laptop',
+        'jumlah' => 5,
+        'kondisi' => 'baik',
+    ]);
+    Transaksi::create([
+        'user_id' => $user->id,
+        'barang_id' => $barang->id,
+        'jumlah' => 1,
+        'tgl_pinjam' => now()->toDateString(),
+        'status' => 'dipinjam',
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('barang.destroy', $barang))
+        ->assertRedirect(route('barang.index'))
+        ->assertSessionHas('error', 'Barang tidak dapat dihapus karena masih dipinjam.');
+
+    $this->assertDatabaseHas('barangs', ['id' => $barang->id]);
+});
+
 test('borrowing an item reduces available stock', function () {
     $user = User::factory()->create();
     $kategori = Kategori::create(['nama' => 'Elektronik']);
