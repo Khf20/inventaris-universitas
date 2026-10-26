@@ -14,14 +14,25 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @stack('styles')
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-slate-50">
             @include('layouts.navigation')
 
             <main class="md:ml-64">
+                @isset($header)
+                    <header class="border-b border-slate-200 bg-white">
+                        <div class="px-4 py-6 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
                 {{ $slot }}
             </main>
         </div>
+
+        @stack('scripts')
     </body>
 </html>

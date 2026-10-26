@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BarangRequest;
 use App\Models\Barang;
 use App\Models\Kategori;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Yajra\DataTables\Facades\DataTables;
 
 class BarangController extends Controller
 {
@@ -33,6 +36,45 @@ class BarangController extends Controller
             'search' => $request->input('search', ''),
             'kategoriId' => $request->input('kategori_id', ''),
         ]);
+    }
+
+    /**
+     * Return inventory data for AJAX requests.
+     */
+    public function apiIndex(): JsonResponse
+    {
+        $barangs = Barang::with('kategori')
+            ->select(['id', 'nama', 'kategori_id', 'jumlah'])
+            ->get();
+
+        return response()->json($barangs);
+    }
+
+    /**
+     * Return server-side inventory data for DataTables.
+     */
+    public function dataTables(): JsonResponse
+    {
+        $barangs = Barang::with('kategori')->select('barangs.*');
+
+        return DataTables::of($barangs)
+            ->addIndexColumn()
+            ->addColumn('kategori', fn (Barang $barang): string => $barang->kategori?->nama ?? 'Tanpa kategori')
+            ->addColumn('action', function (Barang $barang): string {
+                return '<div class="flex gap-3">'
+                    .'<a class="text-blue-600 hover:underline" href="'.route('barang.show', $barang).'">Detail</a>'
+                    .'<a class="text-slate-600 hover:underline" href="'.route('barang.edit', $barang).'">Edit</a>'
+                    .'</div>';
+            })
+            ->orderColumn('kategori', function (Builder $query, string $order): void {
+                $query->orderBy(
+                    Kategori::select('nama')
+                        ->whereColumn('kategoris.id', 'barangs.kategori_id'),
+                    $order,
+                );
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     /**

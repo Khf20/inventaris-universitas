@@ -17,6 +17,7 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">▦ <span>Dashboard</span></x-nav-link>
                     <x-nav-link :href="route('kategori.index')" :active="request()->routeIs('kategori.*')">◈ <span>Kategori</span></x-nav-link>
                     <x-nav-link :href="route('barang.index')" :active="request()->routeIs('barang.*')">▣ <span>Barang</span></x-nav-link>
+                    <x-nav-link :href="route('barang.datatables')" :active="request()->routeIs('barang.datatables')">▤ <span>DataTables</span></x-nav-link>
                     <x-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.*')">⇄ <span>Transaksi</span></x-nav-link>
                 </div>
             </div>
@@ -59,6 +60,7 @@
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">Dashboard</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('kategori.index')" :active="request()->routeIs('kategori.*')">Kategori</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('barang.index')" :active="request()->routeIs('barang.*')">Barang</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('barang.datatables')" :active="request()->routeIs('barang.datatables')">DataTables</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.*')">Transaksi</x-responsive-nav-link>
                 @if (Auth::user()->isAdmin())
                     <x-responsive-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">Laporan</x-responsive-nav-link>

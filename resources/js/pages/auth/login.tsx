@@ -8,14 +8,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import AuthenticatedSessionController from '../../actions/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import { register } from '@/routes';
-import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
 type Props = {
     status?: string;
     canResetPassword: boolean;
 };
+
+const { store } = AuthenticatedSessionController;
 
 export default function Login({ status, canResetPassword }: Props) {
     return (
@@ -82,7 +84,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
                             <Button
                                 type="submit"
-                                className="mt-4 w-full"
+                                className="mt-4 w-full !bg-indigo-600 !text-white shadow-lg shadow-indigo-600/20 hover:!bg-indigo-700"
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
@@ -92,7 +94,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             </Button>
                         </div>
 
-                        <div className="text-muted-foreground text-center text-sm">
+                        <div className="text-center text-sm text-slate-500">
                             Don't have an account?{' '}
                             <TextLink href={register()} tabIndex={5}>
                                 Sign up

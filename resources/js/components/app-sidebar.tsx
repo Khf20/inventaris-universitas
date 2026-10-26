@@ -69,7 +69,7 @@ export function AppSidebar() {
     return (
         <Sidebar
             collapsible="icon"
-            variant="inset"
+            variant="sidebar"
             className="border-sidebar-border/70"
         >
             <SidebarHeader>

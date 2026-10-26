@@ -22,8 +22,20 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'role:admin,staff'])->group(function () {
+    Route::get('/barang/api/list', [BarangController::class, 'apiIndex'])
+        ->name('barang.api');
+
+    Route::get('/barang/data/datatables', [BarangController::class, 'dataTables'])
+        ->name('barang.dataTables');
+
+    Route::get('/barang/datatables', function () {
+        return view('pages.barang.datatables');
+    })->name('barang.datatables');
+
     Route::resource('barang', BarangController::class);
 });
+
+Route::view('/ajax-test', 'pages.ajax-test')->name('ajax.test');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('kategori', KategoriController::class);
@@ -36,5 +48,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('legacy.profile.destroy');
 });
 
-require __DIR__.'/auth.php';
 require __DIR__.'/settings.php';

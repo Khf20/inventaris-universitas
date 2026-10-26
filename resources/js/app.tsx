@@ -1,4 +1,6 @@
+import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -7,9 +9,12 @@ import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const pages = import.meta.glob('./pages/**/*.tsx');
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
+    resolve: (name) =>
+        resolvePageComponent(`./pages/${name}.tsx`, pages),
     layout: (name) => {
         switch (true) {
             case name === 'welcome':
