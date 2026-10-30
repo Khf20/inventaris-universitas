@@ -22,7 +22,7 @@
                 </div>
             </div>
 
-            @if (Auth::user()->isAdmin())
+            @if (Auth::user() && (Auth::user()->isAdmin() || Auth::user()->role === 'staff'))
                 <div>
                     <p class="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">Laporan</p>
                     <x-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">▤ <span>Laporan</span></x-nav-link>
@@ -62,7 +62,7 @@
                 <x-responsive-nav-link :href="route('barang.index')" :active="request()->routeIs('barang.*')">Barang</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('barang.datatables')" :active="request()->routeIs('barang.datatables')">DataTables</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('transaksi.index')" :active="request()->routeIs('transaksi.*')">Transaksi</x-responsive-nav-link>
-                @if (Auth::user()->isAdmin())
+                @if (Auth::user() && (Auth::user()->isAdmin() || Auth::user()->role === 'staff'))
                     <x-responsive-nav-link :href="route('laporan.index')" :active="request()->routeIs('laporan.*')">Laporan</x-responsive-nav-link>
                 @endif
             </div>

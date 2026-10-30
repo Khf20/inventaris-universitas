@@ -14,7 +14,7 @@ class DashboardController extends Controller
         return view('dashboard', [
             'totalBarang' => Barang::count(),
             'totalKategori' => Kategori::count(),
-            'barangDipinjam' => Transaksi::where('status', 'dipinjam')->count(),
+            'barangDipinjam' => (int) Transaksi::where('status', 'dipinjam')->sum('jumlah'),
             'totalStok' => Barang::sum('jumlah'),
             'transaksiTerbaru' => Transaksi::with(['user', 'barang'])
                 ->latest()

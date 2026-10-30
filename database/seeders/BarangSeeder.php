@@ -30,7 +30,9 @@ class BarangSeeder extends Seeder
         ];
 
         foreach ($barangs as $barang) {
-            Barang::create($barang);
+            if ($barang['kategori_id']) {
+                Barang::updateOrCreate(['nama' => $barang['nama']], $barang);
+            }
         }
     }
 }

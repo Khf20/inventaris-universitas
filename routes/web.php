@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KategoriController;
@@ -17,11 +20,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])
         ->name('admin.dashboard');
-
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 });
 
 Route::middleware(['auth', 'verified', 'role:admin,staff'])->group(function () {
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
     Route::get('/barang/api/list', [BarangController::class, 'apiIndex'])
         ->name('barang.api');
 
@@ -32,10 +35,10 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])->group(function () {
         return view('pages.barang.datatables');
     })->name('barang.datatables');
 
+    Route::view('/ajax-test', 'pages.ajax-test')->name('ajax.test');
+
     Route::resource('barang', BarangController::class);
 });
-
-Route::view('/ajax-test', 'pages.ajax-test')->name('ajax.test');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('kategori', KategoriController::class);
@@ -43,6 +46,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/verify-email', EmailVerificationPromptController::class)
+        ->name('verification.prompt');
+
+    Route::get('/confirm-password', [ConfirmablePasswordController::class, 'show'])
+        ->name('confirm-password');
+    Route::post('/confirm-password', [ConfirmablePasswordController::class, 'store'])
+        ->name('confirm-password.store');
+
+    Route::put('/password', [PasswordController::class, 'update'])
+        ->name('legacy.password.update');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('legacy.profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('legacy.profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('legacy.profile.destroy');
