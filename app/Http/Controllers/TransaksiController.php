@@ -7,6 +7,7 @@ use App\Models\Barang;
 use App\Models\Transaksi;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -16,7 +17,7 @@ class TransaksiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
         $query = Transaksi::with(['user', 'barang']);
 
@@ -24,8 +25,27 @@ class TransaksiController extends Controller
             $query->where('user_id', Auth::id());
         }
 
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $query
+            ->when($search, function ($query) use ($search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->whereHas('barang', function ($query) use ($search): void {
+                        $query->where('nama', 'like', '%'.$search.'%');
+                    })->orWhereHas('user', function ($query) use ($search): void {
+                        $query->where('name', 'like', '%'.$search.'%');
+                    });
+                });
+            })
+            ->when(in_array($status, ['dipinjam', 'dikembalikan'], true), function ($query) use ($status): void {
+                $query->where('status', $status);
+            });
+
         return view('transaksi.index', [
-            'transaksis' => $query->latest()->paginate(10),
+            'transaksis' => $query->latest()->paginate(10)->withQueryString(),
+            'search' => $search ?? '',
+            'status' => $status ?? '',
         ]);
     }
 

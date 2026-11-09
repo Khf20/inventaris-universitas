@@ -29,6 +29,41 @@ test('staff can create a category and an item', function () {
     ]);
 });
 
+test('staff can filter inventory by category, condition, and name or description', function () {
+    $user = User::factory()->create();
+    $electronics = Kategori::create(['nama' => 'Elektronik']);
+    $furniture = Kategori::create(['nama' => 'Furniture']);
+    $matchingItem = Barang::create([
+        'kategori_id' => $electronics->id,
+        'nama' => 'Laptop',
+        'jumlah' => 5,
+        'kondisi' => 'rusak',
+        'deskripsi' => 'Perlu diperbaiki',
+    ]);
+    $nonMatchingItem = Barang::create([
+        'kategori_id' => $furniture->id,
+        'nama' => 'Kursi',
+        'jumlah' => 2,
+        'kondisi' => 'baik',
+        'deskripsi' => 'Kondisi siap pakai',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->get(route('barang.index', [
+            'kategori' => $electronics->id,
+            'kondisi' => 'rusak',
+            'search' => 'diperbaiki',
+        ]))
+        ->assertSuccessful()
+        ->assertSee('name="kategori"', false)
+        ->assertSee('value="diperbaiki"', false)
+        ->assertSee('value="rusak" selected', false);
+
+    expect($response->viewData('barangs')->getCollection()->pluck('id')->all())
+        ->toBe([$matchingItem->id])
+        ->not->toContain($nonMatchingItem->id);
+});
+
 test('category validation returns custom messages', function () {
     $user = User::factory()->create();
 
@@ -114,6 +149,54 @@ test('staff can open the inventory report', function () {
         ->get(route('laporan.index'))
         ->assertSuccessful()
         ->assertViewIs('laporan.index');
+});
+
+test('staff can download the inventory items PDF report', function () {
+    $user = User::factory()->create();
+    $kategori = Kategori::create(['nama' => 'Elektronik']);
+    Barang::create([
+        'kategori_id' => $kategori->id,
+        'nama' => 'Laptop',
+        'jumlah' => 5,
+        'kondisi' => 'baik',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('laporan.barang.pdf'))
+        ->assertSuccessful()
+        ->assertHeader('content-type', 'application/pdf')
+        ->assertHeader(
+            'content-disposition',
+            'attachment; filename=laporan-barang-'.now()->format('Y-m-d').'.pdf',
+        );
+});
+
+test('staff can download the transactions PDF report', function () {
+    $user = User::factory()->create();
+    $kategori = Kategori::create(['nama' => 'Elektronik']);
+    $barang = Barang::create([
+        'kategori_id' => $kategori->id,
+        'nama' => 'Laptop',
+        'jumlah' => 5,
+        'kondisi' => 'baik',
+    ]);
+    Transaksi::create([
+        'user_id' => $user->id,
+        'barang_id' => $barang->id,
+        'jumlah' => 1,
+        'tgl_pinjam' => now()->toDateString(),
+        'tgl_kembali' => null,
+        'status' => 'dipinjam',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('laporan.transaksi.pdf'))
+        ->assertSuccessful()
+        ->assertHeader('content-type', 'application/pdf')
+        ->assertHeader(
+            'content-disposition',
+            'attachment; filename=laporan-transaksi-'.now()->format('Y-m-d').'.pdf',
+        );
 });
 
 test('staff can fetch inventory data with category details', function () {
@@ -243,4 +326,54 @@ test('staff only sees their own transactions while admins see all transactions',
     $this->actingAs($admin)
         ->get(route('transaksi.index'))
         ->assertViewHas('transaksis', fn ($transaksis) => $transaksis->pluck('id')->sort()->values()->all() === collect([$ownTransaction->id, $otherTransaction->id])->sort()->values()->all());
+});
+
+test('transaction filters search related names and status within staff scope', function () {
+    $staff = User::factory()->create(['role' => 'staff', 'name' => 'Budi Staff']);
+    $otherStaff = User::factory()->create(['role' => 'staff', 'name' => 'Sari Staff']);
+    $kategori = Kategori::create(['nama' => 'Elektronik']);
+    $laptop = Barang::create([
+        'kategori_id' => $kategori->id,
+        'nama' => 'Laptop Kantor',
+        'jumlah' => 10,
+        'kondisi' => 'baik',
+    ]);
+    $monitor = Barang::create([
+        'kategori_id' => $kategori->id,
+        'nama' => 'Monitor',
+        'jumlah' => 10,
+        'kondisi' => 'baik',
+    ]);
+    $ownTransaction = Transaksi::create([
+        'user_id' => $staff->id,
+        'barang_id' => $laptop->id,
+        'jumlah' => 1,
+        'tgl_pinjam' => now()->toDateString(),
+        'status' => 'dipinjam',
+    ]);
+    Transaksi::create([
+        'user_id' => $staff->id,
+        'barang_id' => $monitor->id,
+        'jumlah' => 1,
+        'tgl_pinjam' => now()->toDateString(),
+        'status' => 'dikembalikan',
+    ]);
+    $otherTransaction = Transaksi::create([
+        'user_id' => $otherStaff->id,
+        'barang_id' => $laptop->id,
+        'jumlah' => 1,
+        'tgl_pinjam' => now()->toDateString(),
+        'status' => 'dipinjam',
+    ]);
+
+    $this->actingAs($staff)
+        ->get(route('transaksi.index', ['search' => 'Laptop', 'status' => 'dipinjam']))
+        ->assertSuccessful()
+        ->assertViewHas('search', 'Laptop')
+        ->assertViewHas('status', 'dipinjam')
+        ->assertViewHas('transaksis', fn ($transaksis) => $transaksis->pluck('id')->all() === [$ownTransaction->id]);
+
+    $this->actingAs(User::factory()->create(['role' => 'admin']))
+        ->get(route('transaksi.index', ['search' => 'Sari Staff', 'status' => 'dipinjam']))
+        ->assertViewHas('transaksis', fn ($transaksis) => $transaksis->pluck('id')->all() === [$otherTransaction->id]);
 });

@@ -19,12 +19,22 @@ class BarangController extends Controller
      */
     public function index(Request $request): View
     {
+        $kategori = $request->input('kategori', $request->input('kategori_id'));
+
         $barangs = Barang::with('kategori')
             ->when($request->filled('search'), function ($query) use ($request): void {
-                $query->where('nama', 'like', '%'.$request->input('search').'%');
+                $search = $request->input('search');
+
+                $query->where(function ($query) use ($search): void {
+                    $query->where('nama', 'like', '%'.$search.'%')
+                        ->orWhere('deskripsi', 'like', '%'.$search.'%');
+                });
             })
-            ->when($request->filled('kategori_id'), function ($query) use ($request): void {
-                $query->where('kategori_id', $request->integer('kategori_id'));
+            ->when($kategori, function ($query) use ($kategori): void {
+                $query->where('kategori_id', (int) $kategori);
+            })
+            ->when($request->filled('kondisi'), function ($query) use ($request): void {
+                $query->where('kondisi', $request->input('kondisi'));
             })
             ->latest()
             ->paginate(10)
@@ -33,8 +43,6 @@ class BarangController extends Controller
         return view('pages.barang.index', [
             'barangs' => $barangs,
             'kategoris' => Kategori::orderBy('nama')->get(),
-            'search' => $request->input('search', ''),
-            'kategoriId' => $request->input('kategori_id', ''),
         ]);
     }
 

@@ -11,18 +11,27 @@
             @if (session('status'))
                 <div class="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{{ session('status') }}</div>
             @endif
-            <form method="GET" action="{{ route('barang.index') }}" class="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_220px_auto_auto] sm:items-end">
+            <form method="GET" action="{{ route('barang.index') }}" class="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[1fr_220px_220px_auto_auto] sm:items-end">
                 <div>
                     <label for="search" class="block text-sm font-medium text-slate-700">Cari barang</label>
-                    <input id="search" name="search" value="{{ $search }}" type="search" placeholder="Nama barang…" class="mt-1 block w-full rounded-lg border-slate-300">
+                    <input id="search" name="search" value="{{ request('search') }}" type="text" placeholder="Nama barang atau deskripsi..." class="mt-1 block w-full rounded-lg border-slate-300">
                 </div>
                 <div>
-                    <label for="kategori_id" class="block text-sm font-medium text-slate-700">Kategori</label>
-                    <select id="kategori_id" name="kategori_id" class="mt-1 block w-full rounded-lg border-slate-300">
+                    <label for="kategori" class="block text-sm font-medium text-slate-700">Kategori</label>
+                    <select id="kategori" name="kategori" class="mt-1 block w-full rounded-lg border-slate-300">
                         <option value="">Semua kategori</option>
                         @foreach ($kategoris as $kategori)
-                            <option value="{{ $kategori->id }}" @selected((string) $kategoriId === (string) $kategori->id)>{{ $kategori->nama }}</option>
+                            <option value="{{ $kategori->id }}" @selected((string) request('kategori') === (string) $kategori->id)>{{ $kategori->nama }}</option>
                         @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="kondisi" class="block text-sm font-medium text-slate-700">Kondisi</label>
+                    <select id="kondisi" name="kondisi" class="mt-1 block w-full rounded-lg border-slate-300">
+                        <option value="">Semua</option>
+                        <option value="baik" @selected(request('kondisi') === 'baik')>Baik</option>
+                        <option value="rusak" @selected(request('kondisi') === 'rusak')>Rusak</option>
+                        <option value="hilang" @selected(request('kondisi') === 'hilang')>Hilang</option>
                     </select>
                 </div>
                 <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700">Filter</button>

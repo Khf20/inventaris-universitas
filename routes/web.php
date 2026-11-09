@@ -24,6 +24,10 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:admin,staff'])->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/barang/pdf', [LaporanController::class, 'exportPdfBarang'])
+        ->name('laporan.barang.pdf');
+    Route::get('/laporan/transaksi/pdf', [LaporanController::class, 'exportPdfTransaksi'])
+        ->name('laporan.transaksi.pdf');
 
     Route::get('/barang/api/list', [BarangController::class, 'apiIndex'])
         ->name('barang.api');
