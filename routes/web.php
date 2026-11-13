@@ -28,6 +28,9 @@ Route::middleware(['auth', 'verified', 'role:admin,staff'])->group(function () {
         ->name('laporan.barang.pdf');
     Route::get('/laporan/transaksi/pdf', [LaporanController::class, 'exportPdfTransaksi'])
         ->name('laporan.transaksi.pdf');
+    Route::get('/laporan/{jenis}/excel', [LaporanController::class, 'exportExcel'])
+        ->whereIn('jenis', ['barang', 'transaksi'])
+        ->name('laporan.excel');
 
     Route::get('/barang/api/list', [BarangController::class, 'apiIndex'])
         ->name('barang.api');
